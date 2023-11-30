@@ -2,7 +2,7 @@ import EmployeesListItem from "../employees-list-item/employees-list-item";
 
 import './employees-list.css';
 
-const EmployeesList = ({employees, onDelete}) => {
+const EmployeesList = ({employees, onDelete, onToggleLabel}) => {
 
     const employeesList = employees.map( (item) => {
         const {id, ...itemProps} = item;
@@ -12,6 +12,7 @@ const EmployeesList = ({employees, onDelete}) => {
                 key={id} 
                 {...itemProps}
                 onDelete={() => onDelete(id)}
+                onToggleLabel={(event)=>onToggleLabel(id, event.currentTarget.getAttribute('data-label'))}
                 />
         )
 

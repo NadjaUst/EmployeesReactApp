@@ -13,11 +13,12 @@ class App extends Component {
 
   constructor(props) {
     super(props);
+
     this.state = {
       employeesData: [
-        { name: "John Smith", salary: 1800, increase: false, id: 1 },
-        { name: "Alex Mann", salary: 3000, increase: true, id: 2 },
-        { name: "James Bond", salary: 5000, increase: false, id: 3 }
+        { name: "John Smith", salary: 1800, increase: false, rise: true, id: 1 },
+        { name: "Alex Mann", salary: 3000, increase: true, rise: false, id: 2 },
+        { name: "James Bond", salary: 5000, increase: false, rise: false, id: 3 }
       ]
     }
   }
@@ -25,8 +26,10 @@ class App extends Component {
   deleteItem = (id) => {
     this.setState(({ employeesData }) => {
 
+      const newEmployeesData = employeesData.filter(el => el.id !== id);
+
       return {
-        employeesData: employeesData.filter(el => el.id !== id)
+        employeesData: newEmployeesData
       }
 
     })
@@ -34,22 +37,20 @@ class App extends Component {
 
   addItem = (name, salary) => {
 
-
-
     this.setState(({ employeesData }) => {
-      
-      const maxId = employeesData.reduce((prev, current) => prev.b > current.b ? prev : current, {}).id;
+
+      const maxId = employeesData.reduce((prev, current) => prev.id > current.id ? prev : current, {}).id;
       //console.log(maxId)
-      
+
       const newEmployee = {
         name,
         salary,
         increase: false,
-        id: maxId+1
+        rise: false,
+        id: maxId + 1
       }
-      
+
       const newEmployeesData = [...employeesData, newEmployee]
-      
 
       return {
         employeesData: newEmployeesData
@@ -57,25 +58,71 @@ class App extends Component {
     })
   }
 
-  render() {
-    return (
-      <div className="app">
-        <AppInfo />
+  onToggleLabel = (id, label) => {
+    this.setState(({ employeesData }) => {
 
-        <div className="search-panel">
-          <SearchPanel />
-          <AppFilter />
-        </div>
+      const newEmployeesData = employeesData.map(item => {
+        if (item.id === id) {
+          return { ...item, [label]: !item[label] }
+        }
+        return item
+      })
 
-        <EmployeesList employees={this.state.employeesData}
-          onDelete={this.deleteItem}
-        />
-        <EmployeesAddForm onAdd={this.addItem}/>
-      </div>
-    )
-
+      return {
+        employeesData: newEmployeesData
+      }
+    })
   }
-}
+
+
+  // onToggleIncrease = (id) => {
+  //   this.setState(({ employeesData }) => {
+
+  //     const newEmployeesData = employeesData.map(item => {
+  //       if (item.id === id) {
+  //         return { ...item, increase: !item.increase }
+  //       }
+  //       return item
+  //     })
+
+  //     return {
+  //       employeesData: newEmployeesData
+  //     }
+  //   })
+  // }
+
+
+  //   onToggleRise = (id) => {
+  //     console.log("rised" + id)
+  //   }
+
+
+    render() {
+
+      const totalNumber = this.state.employeesData.length;
+      const increaseNumber = this.state.employeesData.filter(el => el.increase == true).length
+
+      return (
+        <div className="app">
+          <AppInfo totalNumber={totalNumber} increaseNumber={increaseNumber}/>
+
+          <div className="search-panel">
+            <SearchPanel />
+            <AppFilter />
+          </div>
+
+          <EmployeesList employees={this.state.employeesData}
+            onDelete={this.deleteItem}
+            onToggleLabel={this.onToggleLabel}
+
+
+          />
+          <EmployeesAddForm onAdd={this.addItem} />
+        </div>
+      )
+
+    }
+  }
 
 
 export default App;
