@@ -16,10 +16,14 @@ class App extends Component {
 
     this.state = {
       employeesData: [
-        { name: "John Smith", salary: 1800, increase: false, rise: true, id: 1 },
-        { name: "Alex Mann", salary: 3000, increase: true, rise: false, id: 2 },
-        { name: "James Bond", salary: 5000, increase: false, rise: false, id: 3 }
-      ]
+        { name: "John Smith", salary: 1800, bonus: false, promotion: true, id: 1 },
+        { name: "Alex Mann", salary: 3000, bonus: true, promotion: false, id: 2 },
+        { name: "James Bond", salary: 800, bonus: false, promotion: false, id: 3 },
+        { name: "Alexandr Bond", salary: 3000, bonus: false, promotion: false, id: 4 },
+        { name: "Peter Smith", salary: 500, bonus: false, promotion: false, id: 5 }
+      ],
+      nameFilter: '',
+      labelFilter: 'all'
     }
   }
 
@@ -40,13 +44,12 @@ class App extends Component {
     this.setState(({ employeesData }) => {
 
       const maxId = employeesData.reduce((prev, current) => prev.id > current.id ? prev : current, {}).id;
-      //console.log(maxId)
 
       const newEmployee = {
         name,
         salary,
-        increase: false,
-        rise: false,
+        bonus: false,
+        promotion: false,
         id: maxId + 1
       }
 
@@ -74,55 +77,65 @@ class App extends Component {
     })
   }
 
+  searchEmployee = (items, nameFilter) => {
+    if (nameFilter.length === 0) {
+      return items;
+    }
 
-  // onToggleIncrease = (id) => {
-  //   this.setState(({ employeesData }) => {
+    return items.filter(item => {
+      return item.name.indexOf(nameFilter) > -1
+    })
+  }
 
-  //     const newEmployeesData = employeesData.map(item => {
-  //       if (item.id === id) {
-  //         return { ...item, increase: !item.increase }
-  //       }
-  //       return item
-  //     })
+  onUpdateSearch = (nameFilter) => {
+    this.setState({ nameFilter });
+  }
 
-  //     return {
-  //       employeesData: newEmployeesData
-  //     }
-  //   })
-  // }
-
-
-  //   onToggleRise = (id) => {
-  //     console.log("rised" + id)
-  //   }
-
-
-    render() {
-
-      const totalNumber = this.state.employeesData.length;
-      const increaseNumber = this.state.employeesData.filter(el => el.increase == true).length
-
-      return (
-        <div className="app">
-          <AppInfo totalNumber={totalNumber} increaseNumber={increaseNumber}/>
-
-          <div className="search-panel">
-            <SearchPanel />
-            <AppFilter />
-          </div>
-
-          <EmployeesList employees={this.state.employeesData}
-            onDelete={this.deleteItem}
-            onToggleLabel={this.onToggleLabel}
-
-
-          />
-          <EmployeesAddForm onAdd={this.addItem} />
-        </div>
-      )
-
+  filterEmployee = (items, labelFilter) => {
+    switch (labelFilter) {
+      case 'promotion':
+        return items.filter(item => item.promotion);
+      case 'more1000':
+        return items.filter(item => item.salary > 1000);
+      default:
+        return items
     }
   }
+
+  onFilterSelect = (labelFilter) => {
+    this.setState({ labelFilter });
+  }
+
+  render() {
+
+    const { employeesData, nameFilter, labelFilter } = this.state;
+
+    const totalNumber = employeesData.length;
+    const bonusNumber = employeesData.filter(el => el.bonus == true).length
+
+    const visibleData = this.filterEmployee(this.searchEmployee(employeesData, nameFilter), labelFilter);
+
+    return (
+      <div className="app">
+        <AppInfo totalNumber={totalNumber} bonusNumber={bonusNumber} />
+
+        <div className="search-panel">
+          <SearchPanel onUpdateSearch={this.onUpdateSearch} />
+          <AppFilter filter={labelFilter} onFilterSelect={this.onFilterSelect} />
+        </div>
+
+        <EmployeesList employees={visibleData}
+          onDelete={this.deleteItem}
+          onToggleLabel={this.onToggleLabel}
+
+
+        />
+        <EmployeesAddForm onAdd={this.addItem} />
+      </div>
+    )
+
+  }
+}
 
 
 export default App;
